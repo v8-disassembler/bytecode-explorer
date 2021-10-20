@@ -6,6 +6,7 @@ function Machine (regCount, args, constantPool, poolCount) {
   this.prev;
   this.retVal;
 
+  this.args = args;
   // NOTE レジスタと引数用
   this.store = Object.fromEntries(Array.from({ length: args.length }, (_, i) => {
     return [`a${i}`, args[i]];
@@ -22,8 +23,8 @@ function Machine (regCount, args, constantPool, poolCount) {
 
 Machine.prototype.processCode = function (code) {
   const instrGen = fetchNext(code);
-
-  let res = [];
+  
+  let res = [`Args: ${this.args.map((arg, i) => `a${i} = ${arg}`).join(', ')}\n`];
   let curInstr = instrGen.next();
   while (!curInstr.done) {
     const terms = curInstr.value.match(/(?:(?:(?:\([^\(]+\))|(?:\w+)|(?:\d+)))/g);
