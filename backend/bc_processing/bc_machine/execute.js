@@ -1,11 +1,12 @@
 module.exports = function (op, ...args) {
+  this.prev = this.acc;
   switch (op) {
     case 'LdaZero':
       this.acc = 0;
       break;
 
     case 'LdaSmi':
-      this.acc = args[0]
+      this.acc = Number(args[0]);
       break;
 
     // case 'LdaConstant':
@@ -30,11 +31,11 @@ module.exports = function (op, ...args) {
       break;
       
     case 'Ldar':
-      this.acc = this.rs[args[0]];
+      this.acc = this.store[args[0]];
       break;
     
     case 'Star':
-      this.rs[args[0]] = this.acc;
+      this.store[args[0]] = this.acc;
       break;
     
     // case Star0 - StarN:
@@ -75,7 +76,9 @@ module.exports = function (op, ...args) {
 
     // case 'StaLookupSlot':
 
-    // case 'LdaNamedProperty':
+    case 'LdaNamedProperty':
+      this.acc = this.store[args[0]][this.constantPool[args[1]]];
+      break;
 
     // case 'LdaNamedPropertyFromSuper':
 
@@ -88,10 +91,10 @@ module.exports = function (op, ...args) {
     // case 'StaNamedOwnProperty':
 
     case 'StaKeyedProperty':
-    //! not completely equivalent
-    case 'StaKeyedPropertyAsDefine':
-      this.store[args[0]][args[1]] = this.acc;
+      this.store[args[0]][this.store[args[1]]] = this.acc;
       break;
+
+    // case 'StaKeyedPropertyAsDefine':
 
     // case 'StaInArrayLiteral':
 
@@ -116,7 +119,7 @@ module.exports = function (op, ...args) {
       break;
 
     case 'Sub':
-      this.acc -= this.store[args[0]];
+      this.acc = this.store[args[0]] - this.acc;
       break;
 
     case 'Mul':
@@ -317,6 +320,7 @@ module.exports = function (op, ...args) {
 
     // case 'JumpIfTrueConstant':
 
+    // TODO handle jumps ASAP
     // case 'JumpIfFalse':
 
     // case 'JumpIfFalseConstant':

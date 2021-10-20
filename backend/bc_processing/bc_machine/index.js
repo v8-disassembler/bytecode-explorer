@@ -1,22 +1,25 @@
 const Machine = require('./machine');
+const constantPool = require('./pool');
 
-function run (bytecode) {
+function run (bytecode, fnArgs) {
   const splitCode = bytecode.split('\n');
 
   const registerCount = splitCode[2].match(/\d+/)[0];
 
   const constPoolIndex = findIndexLast(splitCode, (str) => str.startsWith('Constant pool'));
+  // const poolSize = 
   const instructions = splitCode.slice(4, constPoolIndex);
 
   const formattedBytecode = formatCode(instructions);
 
-  const machine = new Machine(registerCount);
-
-  return `${formattedBytecode}\n\n${splitCode.slice(constPoolIndex).join('\n')}`
+  const constPool = constantPool(splitCode.slice(constPoolIndex));
+  
+  const machine = new Machine(registerCount, fnArgs, constPool);
+  
+  return machine.processCode(formattedBytecode);
 }
 
 function findIndexLast (arr, pred) {
-  console.log(arr.length, arr[132])
   for (let i = arr.length - 3; i >= 0; i -= 1) {
     if (pred(arr[i])) {
       return i;
@@ -27,11 +30,12 @@ function findIndexLast (arr, pred) {
 
 function formatCode (bytecode) {
   return bytecode.map((str, i) => {
-    const lineId = String(i + 1);
-    const lineIdLen = lineId.length;
-    const instruction = str.substr(53);
-    return `${lineId}${' '.repeat(5 - lineIdLen)}${instruction}`;
-  }).join('\n');
+    return str.substr(53).trim();
+    // const lineId = String(i + 1);
+    // const lineIdLen = lineId.length;
+    // const instruction = str.substr(53);
+    // return `${lineId}${' '.repeat(5 - lineIdLen)}${instruction}`;
+  });
 }
 
 module.exports = { run };

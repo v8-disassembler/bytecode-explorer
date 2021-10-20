@@ -1,11 +1,12 @@
-module.exports = function (op, ...args) {
+function getComment (op, ...args) {
   switch (op) {
-    // case 'LdaZero':
+    case 'LdaZero':
+      return '; a = 0';
 
-    // case 'LdaSmi':
+    case 'LdaSmi':
+      return `; a = ${this.acc}`;
 
     // case 'LdaConstant':
-    //   this.acc = 
 
     // case 'LdaUndefined':
 
@@ -17,9 +18,11 @@ module.exports = function (op, ...args) {
     
     // case 'LdaFalse':
       
-    // case 'Ldar':
+    case 'Ldar':
+      return `; a = ${this.acc} (${args[0]})`;
     
-    // case 'Star':
+    case 'Star':
+      return `; ${args[0]} = ${this.acc} (a)`;
     
     // case Star0 - StarN:
 
@@ -57,17 +60,20 @@ module.exports = function (op, ...args) {
 
     // case 'StaLookupSlot':
 
-    // case 'LdaNamedProperty':
+    case 'LdaNamedProperty':
+      return `; a = ${this.acc} (${args[0]}.${this.constantPool[args[1]]})`;
 
     // case 'LdaNamedPropertyFromSuper':
 
-    // case 'LdaKeyedProperty':
+    case 'LdaKeyedProperty':
+      return `; a = ${this.acc} (${args[0]}[${this.prev}])`;
     
     // case 'StaNamedProperty':
 
     // case 'StaNamedOwnProperty':
 
-    // case 'StaKeyedProperty':
+    case 'StaKeyedProperty':
+      return `; ${args[0]}[${this.store[args[1]]} (${args[1]})] = ${this.acc} (a)`;
 
     // case 'StaKeyedPropertyAsDefine':
 
@@ -85,23 +91,27 @@ module.exports = function (op, ...args) {
 
     // case 'Add':
 
-    // case 'Sub':
+    case 'Sub':
+      return `; a = ${this.acc} (${this.store[args[0]]} - ${this.prev} (${args[0]}, a))`;
+      
+      // case 'Mul':
+      
+      // case 'Div':
 
-    // case 'Mul':
+      // case 'Mod':
     
-    // case 'Div':
-
-    // case 'Mod':
-    
     // case 'Sub':
-
-    // case 'AddSmi':
-
-    // case 'SubSmi':
-
+    
+    case 'AddSmi':
+      return `; a = ${this.acc} (a += ${args[0]})`;
+      
+    case 'SubSmi':
+      return `; a = ${this.acc} (a -= ${args[0]})`;
+      
     // case 'MulSmi':
-
-    // case 'DivSmi':
+      
+    case 'DivSmi':
+      return `; a = ${this.acc} (a /= ${args[0]})`;
 
     // case 'ModSmi':
 
@@ -143,9 +153,11 @@ module.exports = function (op, ...args) {
 
     // case 'ToString':
 
-    // case 'Inc':
+    case 'Inc':
+      return `; a = ${this.arr} (a += 1)`;
 
-    // case 'Dec':
+    case 'Dec':
+      return `; a = ${this.arr} (a -= 1)`;
 
     // case 'ToBooleanLogicalNot':
 
@@ -181,7 +193,8 @@ module.exports = function (op, ...args) {
 
     // case 'TestReferenceEqual':
 
-    // case 'TestLessThan':
+    case 'TestLessThan':
+      return `; ${this.test} (${args[0]} < a)`;
 
     // case 'TestGreaterThan':
 
@@ -209,7 +222,10 @@ module.exports = function (op, ...args) {
 
     // case 'JumpIfTrueConstant':
 
-    // case 'JumpIfFalse':
+    case 'JumpIfFalse': {
+      const dest = args[1].match(/(\d+)\)$/)[1];
+      return `; ${this.test === false ? `jump to ${dest}` : 'don\'t jump'}`;
+    }
 
     // case 'JumpIfFalseConstant':
 
@@ -245,7 +261,9 @@ module.exports = function (op, ...args) {
 
     // case 'JumpIfJSReceiverConstant':
 
-    // case 'JumpLoop':
+    case 'JumpLoop':
+      const dest = args[2].match(/(\d+)\)$/)[1];
+      return `; jump back to ${dest} (skipped)`;
 
     // case 'SwitchOnSmiNoFeedback':
 
@@ -291,7 +309,8 @@ module.exports = function (op, ...args) {
 
     // case 'Abort':
 
-    // case 'Return':
+    case 'Return':
+      return `; return ${this.acc} (acc)`
 
     // case 'ThrowReferenceErrorIfHole':
 
@@ -334,4 +353,9 @@ module.exports = function (op, ...args) {
     default: 
       break;
   }
+}
+
+module.exports = function (code, op, ...args) {
+  const comment = getComment.call(this, op, ...args);
+  return `${code}${' '.repeat(55 - code.length)}${comment}`;
 }

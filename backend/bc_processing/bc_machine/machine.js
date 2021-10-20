@@ -1,28 +1,36 @@
 const execute = require('./execute');
 const comment = require('./comment');
 
-function Machine (regCount, constantPool, poolCount) {
+function Machine (regCount, args, constantPool, poolCount) {
   this.acc;
-  this.store = {};
-  this.constantPool = constantPool;
-  this.context;
-  this.test;
+  this.prev;
   this.retVal;
 
-  this.poolCount = poolCount;
+  // NOTE レジスタと引数用
+  this.store = Object.fromEntries(Array.from({ length: args.length }, (_, i) => {
+    return [`a${i}`, args[i]];
+  }));
+
   this.regCount = regCount;
+
+  this.context;
+  this.test;
+  
+  this.constantPool = constantPool;
+  this.poolCount = poolCount;
 }
 
-Machine.prototype.processCode = (code) => {
+Machine.prototype.processCode = function (code) {
   const instrGen = fetchNext(code);
 
   let res = [];
   let curInstr = instrGen.next();
   while (!curInstr.done) {
-    const terms = curInstr.match(/(?:(?:(?:\([^\(]+\))|(?:\w+)|(?:\[\d+\])))/g);
+    const terms = curInstr.value.match(/(?:(?:(?:\([^\(]+\))|(?:\w+)|(?:\d+)))/g);
+    
     execute.call(this, ...terms);
 
-    res.push(comment.call(this, ...terms));
+    res.push(comment.call(this, curInstr.value, ...terms));
 
     curInstr = instrGen.next();
   }

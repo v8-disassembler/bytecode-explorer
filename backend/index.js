@@ -3,7 +3,6 @@ const app = new Koa();
 
 const router = require('./router');
 const bodyParser = require('koa-bodyparser');
-// const serve = require('koa-static');
 
 const port = process.env.PORT || 3001;
 
