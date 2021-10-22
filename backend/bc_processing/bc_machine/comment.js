@@ -4,7 +4,12 @@ function getComment (op, ...args) {
     args = args.slice(1);
     console.log(args);
   }
-  
+
+  // NOTE prints array in between []
+  Array.prototype.toString = function () {
+    return `[${this.join(',')}]`;
+  }
+
 	switch (op) {
 		case 'LdaZero':
 			return '; a = 0';
@@ -276,7 +281,8 @@ function getComment (op, ...args) {
 
 		// case 'CreateRegExpLiteral':
 
-		// case 'CreateArrayLiteral':
+		case 'CreateArrayLiteral':
+      return `; a = []`;
 
 		// case 'CreateEmptyArrayLiteral':
 
@@ -344,10 +350,6 @@ function getComment (op, ...args) {
 		// case 'ForInStep':
 
 		// case 'GetIterator':
-
-		// case 'Wide':
-
-		// case 'ExtraWide':
 
 		// case 'Illegal':
 

@@ -363,7 +363,9 @@ module.exports = function (op, ...args) {
 
     // case 'CreateRegExpLiteral':
 
-    // case 'CreateArrayLiteral':
+    case 'CreateArrayLiteral':
+      this.acc = [];
+      break;
 
     // case 'CreateEmptyArrayLiteral':
 

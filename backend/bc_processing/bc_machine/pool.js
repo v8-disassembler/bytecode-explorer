@@ -8,12 +8,12 @@ module.exports = (code) => {
 		Array.from({ length: propsLen }, (_, i) => {
 			const propName = code[propsIndex + i].match(/([^<>\s]+)>+\s*$/)[1];
       if (/^\w+$/.test(propName)) {
-        console.log(propName);
-        return [ i, propName[1] ];
+        // console.log(propName);
+        return [ i, propName ];
       }
       // NOTE not a property name (string)
       if (propName.includes('Array')) {
-        const len = propName.match(/\d+/)[0];
+        const len = Number(propName.match(/\d+/)[0]);
         return [ i, Array(len) ];
       }
 		})
