@@ -315,10 +315,9 @@ function getComment (op, ...args) {
 
 		// case 'CreateRegExpLiteral':
 
+		case 'CreateEmptyArrayLiteral':
 		case 'CreateArrayLiteral':
 			return `; a = []`;
-
-		// case 'CreateEmptyArrayLiteral':
 
 		// case 'CreateArrayFromIterable':
 
@@ -349,7 +348,7 @@ function getComment (op, ...args) {
 		// case 'CreateRestParameter':
 
 		case 'SetPendingMessage':
-			return `; msg: ${this.pendingMsg}`;
+			return `; a = ${this.acc} (prev msg); msg = ${this.pendingMsg}`;
 
 		// case 'Throw':
 

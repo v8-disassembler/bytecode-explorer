@@ -12,19 +12,20 @@ function argsFromFnCall (call) {
 
 function argNamesFromFnCall (input, call) {
   const fnName = call.match(/^\s*(\w+)/)[1];
+  
   const reg = new RegExp(`^\\s*function\\s+${fnName}\\s*\\((.+)\\)[^\n\\{]*`);
   const argNames = reg.exec(input)[1];
-  return argNames.split(/,\s?/);
+  return { argNames: argNames.split(/,\s?/), fnName };
 }
 
 async function processInput (ctx) {
   const input = ctx.request.body.value;
   const call = input.match(/^\w+\([^\n;]+/m)[0];
-
+  
   const args = argsFromFnCall(call);
-  const argNames = argNamesFromFnCall(input, call);
+  const { argNames, fnName } = argNamesFromFnCall(input, call);
 
-  return { args, argNames };
+  return { args, argNames, fnName };
 }
 
 module.exports = { processInput };

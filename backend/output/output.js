@@ -1,13 +1,9 @@
-function foo (ns) {
-  switch (ns) {
-    case 'one':
-    return 1;
-    
-    case 'two':
-    return 2;
-
-    default: return 3;
+function divisors(integer) {
+  const res = [...Array(integer).keys()].slice(2).filter(el => integer % el === 0);
+  if (res.length === 0) {
+    return `${integer} is prime`;
   }
-}
+  return res;
+};
 
-foo('waw');
+divisors(45623);

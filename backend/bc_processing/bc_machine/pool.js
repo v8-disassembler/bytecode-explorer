@@ -2,7 +2,7 @@ module.exports = (code) => {
 	// NOTE index of first pool entry
 	const propsIndex = code.findIndex((line) => line.startsWith('  '));
 	const propsLen = code[propsIndex - 1].match(/(\d+)\s*$/)[1];
-
+	console.log(code[propsIndex], propsLen)
 	// TODO make this work even for non-string props
 	return {
 		properties: Object.fromEntries(

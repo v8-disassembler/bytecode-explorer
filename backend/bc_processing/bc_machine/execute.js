@@ -410,6 +410,7 @@ module.exports = function (op, ...args) {
 
 		// case 'JumpIfJSReceiverConstant':
 
+		// TODO activate when rest is working
 		case 'JumpLoop': {
 			// const dest = getDest(args[2]);
 			// this.runningIndex = this.keyedCodeIndices[dest];
@@ -420,11 +421,10 @@ module.exports = function (op, ...args) {
 
 		// case 'CreateRegExpLiteral':
 
+    case 'CreateEmptyArrayLiteral':
 		case 'CreateArrayLiteral':
 			this.acc = [];
 			break;
-
-		// case 'CreateEmptyArrayLiteral':
 
 		// case 'CreateArrayFromIterable':
 
