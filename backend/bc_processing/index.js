@@ -20,18 +20,13 @@ async function loadBytecode (ctx) {
   });
 }
 
-async function processInput (ctx) {
-  const args = utils.argsFromFnCall(ctx);
-  
+async function getBytecode (ctx) {
+  const { args, argNames } = await utils.processInput(ctx);
+
   await fs.writeFile('./output/output.js', ctx.request.body.value, (err) => {
     if (err) console.log(err)
   });
 
-  return args;
-}
-
-async function getBytecode (ctx) {
-  const args = await processInput(ctx);
   const bytecode = await loadBytecode(ctx);
   const formattedBC = bcMachine.run(bytecode, args);
   return formattedBC;
