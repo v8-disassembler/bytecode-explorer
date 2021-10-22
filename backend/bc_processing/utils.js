@@ -2,8 +2,9 @@
 
 function argsFromFnCall (call) {
   // NOTE 'm' flag -> can ^/$ match after every newline
-  const args = call.match(/\((.*)\)$/)[1];
   // TODO re-write args so they are JSON.parse可能
+  const args = call.match(/\((.*)\)$/)[1].replace(/'/g, '"');
+  
   const parsed = JSON.parse(`[${args}]`);
   
   return parsed;

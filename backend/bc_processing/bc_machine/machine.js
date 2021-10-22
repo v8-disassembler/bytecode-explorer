@@ -5,6 +5,7 @@ function Machine (regCount, args, argNames, constantPool, poolCount, keyedCodeIn
 	this.acc;
 	this.prev;
 	this.retVal;
+  this.pendingMsg;
 
 	this.runningIndex = 0;
 
@@ -33,7 +34,6 @@ Machine.prototype.processCode = function (code) {
 
 	const keys = Object.keys(this.keyedCodeIndices);
 	const maxByteLen = keys[keys.length - 1].length;
-  console.log('max byte len', maxByteLen);
 
 	let prevIndex = this.runningIndex;
 	while (this.runningIndex < code.length) {
@@ -44,7 +44,7 @@ Machine.prototype.processCode = function (code) {
 
 		const spaces = ' '.repeat(maxByteLen - keys[prevIndex].length + 1);
 		res.push(`${keys[prevIndex]}${spaces}> ${comment.call(this, code[prevIndex], ...terms)}`);
-    console.log(this.runningIndex, prevIndex);
+    
 		if (this.runningIndex === prevIndex) {
 			this.runningIndex += 1;
 		}

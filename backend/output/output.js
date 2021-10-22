@@ -1,9 +1,13 @@
-function foo (ar) {
-  const len = ar.length;
-  for (let i = 0; i < len / 2; i++) {
-    [ar[i], ar[len - i - 1]] = [ar[len - i - 1], ar[i]];
+function foo (ns) {
+  switch (ns) {
+    case 'one':
+    return 1;
+    
+    case 'two':
+    return 2;
+
+    default: return 3;
   }
-  return ar;
 }
 
-foo([1,2,3,4,5,6]);
+foo('waw');

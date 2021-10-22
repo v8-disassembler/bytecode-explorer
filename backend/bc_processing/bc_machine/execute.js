@@ -1,9 +1,15 @@
-function getDest(arg) {
+function getDest (arg) {
 	return arg.match(/(\d+)\)$/)[1];
 }
 
 module.exports = function (op, ...args) {
 	this.prev = this.acc;
+
+	// NOTE handle jump modifiers
+	if (args[0] === 'Wide' || args[0] === 'ExtraWide') {
+		args = args.slice(1);
+	}
+
 	switch (op) {
 		case 'LdaZero':
 			this.acc = 0;
@@ -13,8 +19,9 @@ module.exports = function (op, ...args) {
 			this.acc = Number(args[0]);
 			break;
 
-		// case 'LdaConstant':
-		//   this.acc =
+		case 'LdaConstant':
+		  this.acc = this.constantPool[args[0]];
+      break;
 
 		case 'LdaUndefined':
 			this.acc = undefined;
@@ -24,7 +31,9 @@ module.exports = function (op, ...args) {
 			this.acc = null;
 			break;
 
-		// case 'LdaTheHole':
+		case 'LdaTheHole':
+			this.acc = 'TheHole';
+			break;
 
 		case 'LdaTrue':
 			this.acc = true;
@@ -264,10 +273,13 @@ module.exports = function (op, ...args) {
 		// case 'Call':
 
 		// TODO
-		case 'CallProperty0':
-			// console.log(this.store[args[0]]);
-			// this.acc = this.store[args[0]].call(this.store[args[1]]);
+		case 'CallProperty0': {
+			this.acc = this.store[args[0]];
+			if (this.acc !== undefined) {
+				this.acc = this.acc.call(this.store[args[1]]);
+			}
 			break;
+		}
 
 		// TODO implement? or skip
 		// case 'CallRuntime':
@@ -325,19 +337,29 @@ module.exports = function (op, ...args) {
 
 		// case 'TestTypeOf':
 
-		case 'Jump':
-      const dest = getDest(args[1]);
-      this.runningIndex = this.keyedCodeIndices[dest];
-      break;
+		case 'Jump': {
+			const dest = getDest(args[1]);
+			this.runningIndex = this.keyedCodeIndices[dest];
+			break;
+		}
 
 		// case 'JumpConstant':
 
-		// case 'JumpIfTrue':
+		case 'JumpIfTrue':
+      if (this.test) {
+        const dest = getDest(args[1]);
+        this.runningIndex = this.keyedCodeIndices[dest];
+      }
+      break;
 
 		// case 'JumpIfTrueConstant':
 
-		// TODO handle jumps ASAP
-		// case 'JumpIfFalse':
+		case 'JumpIfFalse': 
+      if (this.test === false) {
+        const dest = getDest(args[1]);
+        this.runningIndex = this.keyedCodeIndices[dest];
+      }
+      break;
 
 		// case 'JumpIfFalseConstant':
 
@@ -370,7 +392,12 @@ module.exports = function (op, ...args) {
 
 		// case 'JumpIfNotUndefinedConstant':
 
-		// case 'JumpIfUndefinedOrNull':
+		case 'JumpIfUndefinedOrNull':
+			if ((this.test = this.acc === undefined || this.acc === null)) {
+				const dest = getDest(args[1]);
+				this.runningIndex = this.keyedCodeIndices[dest];
+			}
+			break;
 
 		// case 'JumpIfUndefinedOrNullConstant':
 
@@ -383,7 +410,11 @@ module.exports = function (op, ...args) {
 
 		// case 'JumpIfJSReceiverConstant':
 
-		// case 'JumpLoop':
+		case 'JumpLoop': {
+			// const dest = getDest(args[2]);
+			// this.runningIndex = this.keyedCodeIndices[dest];
+			break;
+		}
 
 		// case 'SwitchOnSmiNoFeedback':
 
@@ -423,7 +454,12 @@ module.exports = function (op, ...args) {
 
 		// case 'CreateRestParameter':
 
-		// case 'SetPendingMessage':
+		case 'SetPendingMessage': {
+			const prevPending = this.pendingMsg;
+			this.pendingMsg = this.acc;
+			this.acc = prevPending;
+			break;
+		}
 
 		// case 'Throw':
 

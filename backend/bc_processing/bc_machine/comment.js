@@ -20,7 +20,8 @@ function getComment (op, ...args) {
 		case 'LdaSmi':
 			return `; a = ${this.acc}`;
 
-		// case 'LdaConstant':
+		case 'LdaConstant':
+			return `; a = ${this.acc} (pool property ${args[0]})`;
 
 		case 'LdaUndefined':
 			return `; a = undefined`;
@@ -28,7 +29,8 @@ function getComment (op, ...args) {
 		case 'LdaNull':
 			return `; a = null`;
 
-		// case 'LdaTheHole':
+		case 'LdaTheHole':
+			return `; a = TheHole`;
 
 		case 'LdaTrue':
 			return `; a = true`;
@@ -195,7 +197,10 @@ function getComment (op, ...args) {
 		// case 'Call':
 
 		case 'CallProperty0':
-			return `; a = ${this.acc} (${this.store[args[1]]}.${this.store[args[0]]})`;
+			if (this.acc !== undefined) {
+				return `; a = ${this.acc} (${this.store[args[1]]}.${this.store[args[0]]})`;
+			}
+			return `; a = undefined (property undefined)`;
 
 		case 'CallRuntime':
 			return `; ${args[0]}()`;
@@ -212,14 +217,15 @@ function getComment (op, ...args) {
 
 		// case 'Construct':
 
-		// case 'TestEqual':
+		case 'TestEqual':
+		case 'TestEqualStrict':
+			return `; ${this.test} (a === ${this.store[args[0]]} (${args[0]}) ?)`;
 
-		// case 'TestEqualStrict':
-
-		// case 'TestReferenceEqual':
+		case 'TestReferenceEqual':
+			return `; ${this.test} (a === ${this.store[args[0]]} (${args[0]}) ?)`;
 
 		case 'TestLessThan':
-			return `; ${this.test} (${args[0]} < a)`;
+			return `; ${this.test} (${this.store[args[0]]} < ${this.acc}, ${args[0]} < a ?)`;
 
 		// case 'TestGreaterThan':
 
@@ -246,7 +252,10 @@ function getComment (op, ...args) {
 
 		// case 'JumpConstant':
 
-		// case 'JumpIfTrue':
+		case 'JumpIfTrue': {
+			const dest = getDest(args[1]);
+			return `; ${this.test ? `jump to ${dest}` : "don't jump"}`;
+		}
 
 		// case 'JumpIfTrueConstant':
 
@@ -284,7 +293,9 @@ function getComment (op, ...args) {
 
 		// case 'JumpIfNotUndefinedConstant':
 
-		// case 'JumpIfUndefinedOrNull':
+		case 'JumpIfUndefinedOrNull':
+			const dest = getDest(args[1]);
+			return `; ${this.test ? `jump to ${dest}` : "don't jump"}`;
 
 		// case 'JumpIfUndefinedOrNullConstant':
 
@@ -297,7 +308,7 @@ function getComment (op, ...args) {
 
 		case 'JumpLoop': {
 			const dest = getDest(args[2]);
-			return `; jump back to ${dest} (skipped)`;
+			return `; jump back to ${dest}`;
 		}
 
 		// case 'SwitchOnSmiNoFeedback':
@@ -337,7 +348,8 @@ function getComment (op, ...args) {
 
 		// case 'CreateRestParameter':
 
-		// case 'SetPendingMessage':
+		case 'SetPendingMessage':
+			return `; msg: ${this.pendingMsg}`;
 
 		// case 'Throw':
 
