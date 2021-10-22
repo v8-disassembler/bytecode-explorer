@@ -11,10 +11,9 @@ function argsFromFnCall (call) {
 
 function argNamesFromFnCall (input, call) {
   const fnName = call.match(/^\s*(\w+)/)[1];
-  const reg = new RegExp(`^\\s*function\\s+${fnName}\\s*\\((\\w+)\\)[^\n\\{]+`);
+  const reg = new RegExp(`^\\s*function\\s+${fnName}\\s*\\((.+)\\)[^\n\\{]*`);
   const argNames = reg.exec(input)[1];
-  
-  return argNames;
+  return argNames.split(/,\s?/);
 }
 
 async function processInput (ctx) {

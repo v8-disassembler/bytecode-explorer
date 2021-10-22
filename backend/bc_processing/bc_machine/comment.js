@@ -2,17 +2,16 @@ function getDest(arg) {
 	return arg.match(/(\d+)\)$/)[1];
 }
 
+// NOTE prints array in between []
+Array.prototype.toString = function () {
+	return `[${this.join(',')}]`;
+};
+
 function getComment (op, ...args) {
 	// NOTE handle jump modifiers
 	if (args[0] === 'Wide' || args[0] === 'ExtraWide') {
 		args = args.slice(1);
-		console.log(args);
 	}
-
-	// NOTE prints array in between []
-	Array.prototype.toString = function () {
-		return `[${this.join(',')}]`;
-	};
 
 	switch (op) {
 		case 'LdaZero':

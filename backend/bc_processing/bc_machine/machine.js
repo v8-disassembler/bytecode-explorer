@@ -1,59 +1,57 @@
 const execute = require('./execute');
 const comment = require('./comment');
 
-function Machine (regCount, args, constantPool, poolCount) {
-  this.acc;
-  this.prev;
-  this.retVal;
+function Machine (regCount, args, argNames, constantPool, poolCount, keyedCodeIndices) {
+	this.acc;
+	this.prev;
+	this.retVal;
 
-  this.args = args;
-  // NOTE レジスタと引数用
-  this.store = Object.fromEntries(Array.from({ length: args.length }, (_, i) => {
-    return [`a${i}`, args[i]];
-  }));
+	this.runningIndex = 0;
 
-  this.regCount = regCount;
+	this.keyedCodeIndices = keyedCodeIndices;
 
-  this.context;
-  this.test;
-  
-  this.constantPool = constantPool;
-  this.poolCount = poolCount;
+	this.args = args;
+	this.argNames = argNames;
+	// NOTE レジスタと引数用
+	this.store = Object.fromEntries(
+		Array.from({ length: args.length }, (_, i) => {
+			return [ `a${i}`, args[i] ];
+		})
+	);
+
+	this.regCount = regCount;
+
+	this.context;
+	this.test;
+
+	this.constantPool = constantPool;
+	this.poolCount = poolCount;
 }
 
 Machine.prototype.processCode = function (code) {
-  const instrGen = fetchNext(code);
-  
-  let res = [`Args: ${this.args.map((arg, i) => `a${i} = ${arg}`).join(', ')}\n`];
-  let curInstr = instrGen.next();
-  while (!curInstr.done) {
-    const terms = curInstr.value.match(/(?:(?:(?:\([^\(]+\))|(?:\w+)|(?:\d+)))/g);
-    
-    execute.call(this, ...terms);
+	const res = [ `Args: ${this.args.map((arg, i) => `(${this.argNames[i]}) a${i} = ${arg}`).join(', ')}\n` ];
 
-    res.push(comment.call(this, curInstr.value, ...terms));
+	const keys = Object.keys(this.keyedCodeIndices);
+	const maxByteLen = keys[keys.length - 1].length;
+  console.log('max byte len', maxByteLen);
 
-    curInstr = instrGen.next();
-  }
-  
-  return res.join('\n');
-}
+	let prevIndex = this.runningIndex;
+	while (this.runningIndex < code.length) {
+		// NOTE runningIndex updated inside execute.js
+		const terms = code[this.runningIndex].match(/(?:(?:(?:\([^\(]+\))|(?:\w+)|(?:\d+)))/g);
 
-// function addComment (instruction) {
-//   const terms = instruction;
-  
-//   // NOTE single term expressions have 1 trailing \s to account for
-//   const instrLen = instruction.length - (terms.length === 1 ? 1 : 0);
-//   return `${instruction.trim()}${' '.repeat(60 - instrLen)}${getComment(...terms)}`;
-// };
+		execute.call(this, ...terms);
 
-function * fetchNext (code) {
-  let i = 0;
+		const spaces = ' '.repeat(maxByteLen - keys[prevIndex].length + 1);
+		res.push(`${keys[prevIndex]}${spaces}> ${comment.call(this, code[prevIndex], ...terms)}`);
+    console.log(this.runningIndex, prevIndex);
+		if (this.runningIndex === prevIndex) {
+			this.runningIndex += 1;
+		}
+		prevIndex = this.runningIndex;
+	}
 
-  while (i < code.length) {
-    yield code[i];
-    i += 1;
-  }
-}
+	return res.join('\n\n');
+};
 
 module.exports = Machine;

@@ -28,7 +28,7 @@ async function getBytecode (ctx) {
   });
 
   const bytecode = await loadBytecode(ctx);
-  const formattedBC = bcMachine.run(bytecode, args);
+  const formattedBC = bcMachine.run(bytecode, args, argNames);
   return formattedBC;
 }
 
