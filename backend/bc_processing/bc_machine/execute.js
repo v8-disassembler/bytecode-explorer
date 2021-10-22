@@ -259,6 +259,13 @@ module.exports = function (op, ...args) {
 
     // case 'Call':
 
+    // TODO
+    case 'CallProperty0':
+      // console.log(this.store[args[0]]);
+      // this.acc = this.store[args[0]].call(this.store[args[1]]);
+      break;
+
+    // TODO implement? or skip
     // case 'CallRuntime':
 
     // case 'InvokeIntrinsic':
@@ -327,7 +334,9 @@ module.exports = function (op, ...args) {
 
     // case 'JumpIfFalseConstant':
 
-    // case 'JumpIfToBooleanTrue':
+    case 'JumpIfToBooleanTrue':
+      this.test = !!this.acc;
+      break;
 
     // case 'JumpIfToBooleanTrueConstant':
 
@@ -355,7 +364,9 @@ module.exports = function (op, ...args) {
 
     // case 'JumpIfUndefinedOrNullConstant':
 
-    // case 'JumpIfJSReceiver':
+    case 'JumpIfJSReceiver':
+      this.test = typeof this.acc === 'object';
+			break;
 
     // case 'JumpIfJSReceiverConstant':
 
@@ -435,7 +446,9 @@ module.exports = function (op, ...args) {
 
     // case 'ForInStep':
 
-    // case 'GetIterator':
+    case 'GetIterator':
+      this.acc = this.store[args[0]][Symbol.iterator]();
+      break;
 
     // NOTE used with Jump, 例: Jump.Wide
     // case 'Wide':

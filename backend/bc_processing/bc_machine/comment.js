@@ -1,14 +1,18 @@
-function getComment (op, ...args) {
-  // NOTE handle jump modifiers
-  if (args[0] === 'Wide' || args[0] === 'ExtraWide') {
-    args = args.slice(1);
-    console.log(args);
-  }
+function getDest(arg) {
+	return arg.match(/(\d+)\)$/)[1];
+}
 
-  // NOTE prints array in between []
-  Array.prototype.toString = function () {
-    return `[${this.join(',')}]`;
-  }
+function getComment (op, ...args) {
+	// NOTE handle jump modifiers
+	if (args[0] === 'Wide' || args[0] === 'ExtraWide') {
+		args = args.slice(1);
+		console.log(args);
+	}
+
+	// NOTE prints array in between []
+	Array.prototype.toString = function () {
+		return `[${this.join(',')}]`;
+	};
 
 	switch (op) {
 		case 'LdaZero':
@@ -19,15 +23,19 @@ function getComment (op, ...args) {
 
 		// case 'LdaConstant':
 
-		// case 'LdaUndefined':
+		case 'LdaUndefined':
+			return `; a = undefined`;
 
-		// case 'LdaNull':
+		case 'LdaNull':
+			return `; a = null`;
 
 		// case 'LdaTheHole':
 
-		// case 'LdaTrue':
+		case 'LdaTrue':
+			return `; a = true`;
 
-		// case 'LdaFalse':
+		case 'LdaFalse':
+			return `; a = false`;
 
 		case 'Ldar':
 			return `; a = ${this.acc} (${args[0]})`;
@@ -37,7 +45,8 @@ function getComment (op, ...args) {
 
 		// case Star0 - StarN:
 
-		// case 'Mov':
+		case 'Mov':
+			return `; ${args[1]} = ${this.store[args[0]]} (${args[0]})`;
 
 		// case 'LdaGlobal':
 
@@ -89,7 +98,7 @@ function getComment (op, ...args) {
 		// case 'StaKeyedPropertyAsDefine':
 
 		case 'StaInArrayLiteral':
-      return `; ${args[0]}[${this.store[args[1]]} (${args[1]})] = ${this.prev} (a)`;
+			return `; ${args[0]}[${this.store[args[1]]} (${args[1]})] = ${this.prev} (a)`;
 
 		// case 'StaDataPropertyInLiteral':
 
@@ -186,7 +195,11 @@ function getComment (op, ...args) {
 
 		// case 'Call':
 
-		// case 'CallRuntime':
+		case 'CallProperty0':
+			return `; a = ${this.acc} (${this.store[args[1]]}.${this.store[args[0]]})`;
+
+		case 'CallRuntime':
+			return `; ${args[0]}()`;
 
 		// case 'InvokeIntrinsic':
 
@@ -227,7 +240,10 @@ function getComment (op, ...args) {
 
 		// case 'TestTypeOf':
 
-		// case 'Jump':
+		case 'Jump': {
+			const dest = getDest(args[1]);
+			return `; jump to ${dest}`;
+		}
 
 		// case 'JumpConstant':
 
@@ -236,13 +252,16 @@ function getComment (op, ...args) {
 		// case 'JumpIfTrueConstant':
 
 		case 'JumpIfFalse': {
-			const dest = args[1].match(/(\d+)\)$/)[1];
+			const dest = getDest(args[1]);
 			return `; ${this.test === false ? `jump to ${dest}` : "don't jump"}`;
 		}
 
 		// case 'JumpIfFalseConstant':
 
-		// case 'JumpIfToBooleanTrue':
+		case 'JumpIfToBooleanTrue': {
+			const dest = getDest(args[1]);
+			return `; ${this.test ? `jump to ${dest}` : "don't jump"}`;
+		}
 
 		// case 'JumpIfToBooleanTrueConstant':
 
@@ -270,20 +289,24 @@ function getComment (op, ...args) {
 
 		// case 'JumpIfUndefinedOrNullConstant':
 
-		// case 'JumpIfJSReceiver':
+		case 'JumpIfJSReceiver': {
+			const dest = getDest(args[1]);
+			return `; ${this.test ? `jump to ${dest}` : "don't jump"}`;
+		}
 
 		// case 'JumpIfJSReceiverConstant':
 
-		case 'JumpLoop':
-			const dest = args[2].match(/(\d+)\)$/)[1];
+		case 'JumpLoop': {
+			const dest = getDest(args[2]);
 			return `; jump back to ${dest} (skipped)`;
+		}
 
 		// case 'SwitchOnSmiNoFeedback':
 
 		// case 'CreateRegExpLiteral':
 
 		case 'CreateArrayLiteral':
-      return `; a = []`;
+			return `; a = []`;
 
 		// case 'CreateEmptyArrayLiteral':
 
@@ -350,7 +373,8 @@ function getComment (op, ...args) {
 
 		// case 'ForInStep':
 
-		// case 'GetIterator':
+		case 'GetIterator':
+			return `; a = ${this.acc} (${args[0]}[Symbol.iterator]())`;
 
 		// case 'Illegal':
 
