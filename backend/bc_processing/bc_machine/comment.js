@@ -88,7 +88,8 @@ function getComment (op, ...args) {
 
 		// case 'StaKeyedPropertyAsDefine':
 
-		// case 'StaInArrayLiteral':
+		case 'StaInArrayLiteral':
+      return `; ${args[0]}[${this.store[args[1]]} (${args[1]})] = ${this.prev} (a)`;
 
 		// case 'StaDataPropertyInLiteral':
 

@@ -96,7 +96,9 @@ module.exports = function (op, ...args) {
 
     // case 'StaKeyedPropertyAsDefine':
 
-    // case 'StaInArrayLiteral':
+    case 'StaInArrayLiteral':
+      this.store[args[0]][this.store[args[1]]] = this.acc;
+      break;
 
     // case 'StaDataPropertyInLiteral':
 
