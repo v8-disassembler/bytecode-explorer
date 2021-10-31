@@ -15,9 +15,9 @@ module.exports = (code) => {
 };
 
 function handleProp (prop, i) {
-	const propName = prop.match(/([^<>\s]+)>\s*$/)[1];
+	const propName = prop.match(/([^<>\s]+)>+\s*$/)[1];
+	console.log(propName);
 	if (/^.+$/.test(propName)) {
-		console.log(propName);
 		return [ i, propName ];
 	}
 	// NOTE not a property name (string)
