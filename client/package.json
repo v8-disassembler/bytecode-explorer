@@ -20,6 +20,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "client": "yarn start",
+    "server": "cd ../server && nodemon",
+    "dev": "concurrently \"npm run client\" \"npm run server\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -44,6 +47,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react": "^17.0.28"
+    "@types/react": "^17.0.28",
+    "concurrently": "^6.4.0"
   }
 }
