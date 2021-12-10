@@ -1,9 +1,5 @@
-function yarra (ar) {
-  const len = ar.length;
-  for (let i = 0; i < len / 2; i++) {
-    [ar[i], ar[len - i - 1]] = [ar[len - i - 1], ar[i]];
-  }
-  return ar;
+function john (str) {
+  return Array.from(str.matchAll(/\b\w/g, (match) => `${match}e`));
 }
 
-yarra([1,2,3,4,5,6]);
+john('John fitzgerald kennedy');
